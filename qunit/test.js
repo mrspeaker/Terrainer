@@ -15,11 +15,11 @@ test("seed", function(){
     }
     var seedSize = gen.options.seedSize
     
-	var seed = gen.createSeed(seedSize)
+	var seed = gen.createSeed(seedSize),
         allSameSize = _.all(seed,function(arr){
             return arr.length == seedSize;
         })
-  
+
 	equals( seed.length, seedSize, "seed correct length" );
 	ok( allSameSize, "seed correct bredth" )
 	
