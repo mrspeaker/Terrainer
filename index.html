@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style type="text/css" media="screen">
+            #gen{
+                background:#222;
+            }
+            input[type=text]{
+                width:50px;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="gen" width="500" height="500"></canvas>
+        <div id="options">
+            <button id="btn-go">Go</button>
+            <span id="cur-iterations">0</span>/<input type="text" id="opt-iterations"/>
+            <input type="text" id="opt-seedSize"/>
+            <input type="text" id="opt-seedLandChance"/>
+            <input type="text" id="opt-killIfWater"/>
+            <input type="text" id="opt-speed"/>
+            <select id="opt-preset">
+                <option>Default</option>
+                <option>Sparse</option>
+                <option>Luna Lander</option>
+            </select>
+        </div>
+        <script src="underscore.js" type="text/javascript" charset="utf-8"></script>
+        <script src="terrain-gen.js" type="text/javascript" charset="utf-8"></script>
+        <script type="text/javascript" charset="utf-8">
+            window.addEventListener("load",function(){ gen.init(); });
+        </script>
+    </body>
+</html>
