@@ -1,3 +1,6 @@
+;/*
+    Terrain generator thing
+*/
 (function(){
     var $ = function( selector ){
             return document.getElementById( selector );
@@ -43,7 +46,7 @@ gen = {
             refiner;
         
         // Draw inital conditions
-        this.drawMap( map );
+        this.drawMap( map, 0.5 );
 
         (function iterator() {
             _.delay( function() {
@@ -53,7 +56,7 @@ gen = {
                 }
                 // Refine and draw
                 map = self.refineMap( map );
-                self.drawMap( map );
+                self.drawMap( map, iterations == 1 ? 0.9 : 0.5 );
                 $( "cur-iterations" ).innerText = ( self.options.iterations - iterations ) + 1;
 
                 if ( --iterations ) {
@@ -110,8 +113,8 @@ gen = {
     },
 
     colourEdges: function( map ) {
-        for ( var j = 1; j < map.length - 1; j++ ) {
-            for ( var i = 1; i < map[ 0 ].length - 1; i++ ) {
+        for ( var j = 0; j < map.length - 1; j++ ) {
+            for ( var i = 0; i < map[ 0 ].length - 1; i++ ) {
                 if( map[ j ][ i ] ) {
                     var waterSpaces = 0;
                     this.cellNeighbours( map, i, j, false, function( cell ){
@@ -132,7 +135,9 @@ gen = {
             for( var i = -1; i <= 1; i++ ) {
                 var xOff = x + i,
                     yOff = y + j;
-                if( xOff == x && yOff == y && !blnSelf ) {
+                if( ( xOff == x && yOff == y && !blnSelf ) ||
+                    ( yOff < 0 || yOff > map.length ) || 
+                    ( xOff < 0 || xOff > map[0].length ) ) {
                     continue;
                 }
                 func( map[ yOff ][ xOff ] );
@@ -155,27 +160,29 @@ gen = {
         return newMap;
     },
 
-    drawMap: function( map ) {
+    drawMap: function( map, fill ) {
         var width = map[ 0 ].length,
             height = map.length,
             canvasWidth = this.context.canvas.width,
             canvasHeight = this.context.canvas.height,
             stepX = canvasWidth / map[ 0 ].length,
-            stepY = canvasHeight / map.length,
-            size = stepX;
+            stepY = canvasHeight / map.length;
+            
 
-        this.context.clearRect( 0, 0, canvasWidth, canvasHeight );
+        fill = fill || 1;
+        this.context.fillStyle = "rgba(0, 0, 200, 0.2)";
+        // this.context.fillRect( 0, 0, canvasWidth, canvasHeight );
         for( var j = 0; j < height; j++ ) {
             for( var i = 0; i < width; i++) {
                 switch( map[ j ][ i ] ) {
                     case gen.type[ "water" ]:
-                        this.context.fillStyle = "#2DB3BA";
+                        this.context.fillStyle = "rgba(45, 179, 186," + fill + ")";
                         break;
                     case gen.type["land"]:
-                        this.context.fillStyle = "#3A8A3A";
+                        this.context.fillStyle = "rgba(58, 138, 58," + fill + ")";
                         break;
                     case gen.type["coast"]:
-                        this.context.fillStyle = "#1A5A3A";
+                        this.context.fillStyle = "rgba(26, 90, 58," + fill + ")";
                         break;
                 }
                 this.context.fillRect(

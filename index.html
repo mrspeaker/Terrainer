@@ -2,29 +2,63 @@
 <html>
     <head>
         <style type="text/css" media="screen">
-            #gen{
-                background:#222;
+            body, input{
+                font-family: 'Helvetica Neue', Helvetica, Arial;
             }
-            input[type=text]{
-                width:50px;
+            #gen{
+                background: #222;
+            }
+            input[ type=text ] {
+                width: 40px;
+                text-align: right;
+                font-weight: bold;
+            }
+            #options{
+                margin: 0;
+                padding: 0;
+                font-size: 9pt;
+            }
+            #options li{
+                float:left;
+                height: 45px;
+                width: 83px;
+                text-align: right;
+                list-style-type: none;
             }
         </style>
     </head>
     <body>
         <canvas id="gen" width="500" height="500"></canvas>
-        <div id="options">
-            <button id="btn-go">Go</button>
-            <span id="cur-iterations">0</span>/<input type="text" id="opt-iterations"/>
-            <input type="text" id="opt-seedSize"/>
-            <input type="text" id="opt-seedLandChance"/>
-            <input type="text" id="opt-killIfWater"/>
-            <input type="text" id="opt-speed"/>
-            <select id="opt-preset">
-                <option>Default</option>
-                <option>Sparse</option>
-                <option>Luna Lander</option>
-            </select>
-        </div>
+        <ul id="options">
+            <li>
+                <button id="btn-go">Go</button><br />
+                <select id="opt-preset">
+                    <option>Default</option>
+                    <option>Sparse</option>
+                    <option>Luna Lander</option>
+                </select>
+            </li>
+            <li>
+                <span id="cur-iterations">0</span>/<input type="text" id="opt-iterations"/><br/>
+                Passes
+            </li>
+            <li>
+                <input type="text" id="opt-seedSize"/><br/>
+                Seed size
+            </li>
+            <li>
+                <input type="text" id="opt-seedLandChance"/><br/>
+                Land chance
+            </li>
+            <li>
+                <input type="text" id="opt-killIfWater"/><br/>
+                "smoothing"
+            </li>
+            <li>
+                <input type="text" id="opt-speed"/><br/>
+                speed
+            </li>
+        </ul>
         <script src="underscore.js" type="text/javascript" charset="utf-8"></script>
         <script src="terrain-gen.js" type="text/javascript" charset="utf-8"></script>
         <script type="text/javascript" charset="utf-8">
