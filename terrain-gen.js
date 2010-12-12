@@ -39,13 +39,13 @@ gen = {
         $( "btn-go" ).addEventListener( "click", function() {
             self.running = ! self.running;
             $( "btn-go" ).innerText = self.running ? "stop" : "go";
-        });
+        }, false);
 
         // Set presets
         self.setOptions( self.presets[ 0 ] );
         $( "opt-preset" ).addEventListener( "change", function() {
             self.setOptions( self.presets[ this.selectedIndex ] );
-        });
+        }, false);
 
         this.context = document.getElementById( "gen" ).getContext( "2d" );
 
@@ -213,7 +213,7 @@ gen = {
                         context.fillStyle = "rgba(58, 138, 58," + fill + ")";
                         break;
                     case gen.type["coast"]:
-                        context.fillStyle = "rgba(46, 110, 78," + fill + ")";
+                        context.fillStyle = "rgba(60, 107, 60," + fill + ")";
                         break;
                 }
                 this.context.fillRect(
