@@ -1,8 +1,8 @@
 module("General")
 
 test("setup", function() {
-	expect(1)
-	ok(gen, "object gen exists")
+    expect(1)
+    ok(gen, "object gen exists")
 })
 
 test("seed", function(){
@@ -15,14 +15,14 @@ test("seed", function(){
     }
     var seedSize = gen.options.seedSize
     
-	var seed = gen.createSeed(seedSize),
+    var seed = gen.createSeed(seedSize),
         allSameSize = _.all(seed,function(arr){
             return arr.length == seedSize;
         })
 
-	equals( seed.length, seedSize, "seed correct length" );
-	ok( allSameSize, "seed correct bredth" )
-	
+    equals( seed.length, seedSize, "seed correct length" );
+    ok( allSameSize, "seed correct bredth" )
+    
     var someLand = _.any( _.flatten(seed), function(arr){
         return arr === gen.type['land'];
     });
@@ -30,7 +30,7 @@ test("seed", function(){
         return arr === gen.type['water'];
     });
 
-    ok( someWater && someLand, "seed has water and land" );
+    ok( someWater && someLand, "seed has water and land (fail is ok!)" );
     
     var map = gen.expandMap(seed);
     ok( _.all(map,function(arr){

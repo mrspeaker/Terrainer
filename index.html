@@ -5,6 +5,17 @@
             body, input{
                 font-family: 'Helvetica Neue', Helvetica, Arial;
             }
+            #terrainer{
+                border:1px solid black;
+                width: 470px;
+                -webkit-border-radius: 5px;
+                -moz-border-radius: 5px;
+                border-radius: 5px;
+                background-color: rgb(58, 138, 58)
+            }
+            a{
+                color: rgb(26, 90, 58);
+            }
             #gen{
                 background: #222;
             }
@@ -17,48 +28,52 @@
                 margin: 0;
                 padding: 0;
                 font-size: 9pt;
+                height: 60px;
+                color: rgb(6, 70, 38);
             }
             #options li{
                 float:left;
                 height: 45px;
-                width: 83px;
                 text-align: right;
                 list-style-type: none;
+                padding:4px 8px 0 4px;
             }
         </style>
     </head>
     <body>
-        <canvas id="gen" width="500" height="500"></canvas>
-        <ul id="options">
-            <li>
-                <button id="btn-go">Go</button><br />
-                <select id="opt-preset">
-                    <option>Default</option>
-                    <option>Sparse</option>
-                    <option>Luna Lander</option>
-                </select>
-            </li>
-            <li>
-                <span id="cur-iterations">0</span>/<input type="text" id="opt-iterations"/><br/>
-                Passes
-            </li>
-            <li>
-                <input type="text" id="opt-seedSize"/><br/>
-                Seed size
-            </li>
-            <li>
-                <input type="text" id="opt-seedLandChance"/><br/>
-                Land chance
-            </li>
-            <li>
-                <input type="text" id="opt-killIfWater"/><br/>
-                "smoothing"
-            </li>
-            <li>
-                <input type="text" id="opt-speed"/><br/>
-                speed
-            </li>
-        </ul>
+        <div id="terrainer">
+            <canvas id="gen" width="470" height="470"></canvas>
+            <ul id="options">
+                <li id="defaults">
+                    <a href="http://www.mrspeaker.net/2010/12/12/terrainer-terrain-generator/">terrainer</a>&nbsp;&nbsp;<button id="btn-go">Go</button><br />
+                    <select id="opt-preset">
+                        <option>Default</option>
+                        <option>Sparse</option>
+                        <option>Luna Lander</option>
+                    </select>
+                </li>
+                <li>
+                    <span id="cur-iterations">0</span>/<input type="text" id="opt-iterations"/><br/>
+                    Passes
+                </li>
+                <li>
+                    <input type="text" id="opt-seedSize"/><br/>
+                    Seed size
+                </li>
+                <li>
+                    <input type="text" id="opt-seedLandChance"/><br/>
+                    Water chance
+                </li>
+                <li>
+                    <input type="text" id="opt-killIfWater"/><br/>
+                    "smoothing"
+                </li>
+                <li>
+                    <input type="text" id="opt-speed"/><br/>
+                    speed
+                </li>
+            </ul>
+        </div>
         <script src="underscore.js" type="text/javascript" charset="utf-8"></script>
         <script src="terrain-gen.js" type="text/javascript" charset="utf-8"></script>
         <script type="text/javascript" charset="utf-8">

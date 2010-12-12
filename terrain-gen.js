@@ -1,21 +1,35 @@
 ;/*
     Terrain generator thing
+    www.mrspeaker.net/2010/12/12/terrainer-terrain-generator/
+    v1.0 of 1.0
+
+    var _ = "mrspeaker",
+        email = _ + "@gmail.com",
+        twitter = "@" + _,
+        web = _ + ".net";
+
+    1. create a seed
+    2. for a while...
+        3. exand and copy map so each cell becomes 4 (filling map)
+        4. refine map - choose cells based on surrounding cells
 */
 (function(){
-    var $ = function( selector ){
-            return document.getElementById( selector );
-        },
-        gen;
+
+var gen,
+    $ = function( selector ){
+        return document.getElementById( selector );
+    };
 
 // Terrain generator.
 gen = {
     type: { "water": 0, "land": 1, "coast": 2 },
     options: {},
-    presets: [ 
-        [ 5, 10, 0.2, 4, 200 ], 
+    presets: [
+        [ 5, 10, 0.2, 4, 200 ],
         [ 6, 3, 0.2, 4, 200 ],
         [ 5, 8, 0.25, 1, 50 ]
     ],
+    blur: false,
     running: true,
     context: null,
 
@@ -34,41 +48,79 @@ gen = {
         });
 
         this.context = document.getElementById( "gen" ).getContext( "2d" );
+
+        // Annnnd go!
         this.run();
     },
 
     run: function(){
-        this.getOptions();
-    
         var self = this,
-            iterations = this.options.iterations,
-            map = this.createSeed( this.options.seedSize ),
-            refiner;
-        
-        // Draw inital conditions
-        this.drawMap( map, 0.5 );
+            iterations,
+            map;
 
+        this.getOptions();
+
+        // 1. Create seed
+        map = this.createSeed( this.options.seedSize );
+
+        // Draw inital conditions
+        this.drawMap( this.context, map, 0.5 );
+
+        // 2. For a while...
+        iterations = this.options.iterations;
         (function iterator() {
             _.delay( function() {
                 if ( !self.running ) {
                     iterator();
                     return;
                 }
-                // Refine and draw
+
+                // 3 & 4. Expand, copy & refine map
                 map = self.refineMap( map );
-                self.drawMap( map, iterations == 1 ? 0.9 : 0.5 );
+
+                // Draw it!
+                self.drawMap( self.context, map, iterations === 1 ? 0.9 : 0.5 );
+
+                // Update controls
                 $( "cur-iterations" ).innerText = ( self.options.iterations - iterations ) + 1;
 
+                // 2b. End "for a while..."
                 if ( --iterations ) {
                     iterator();
                     return;
                 }
 
-                // Start again...
+                // 2b. Or start again...
                 _.delay( function(){ self.run(); }, 2000 );
 
             }, gen.options.speed );
         })();
+    },
+
+    refineMap: function( map ) {
+        // 3. Expand & copy map
+        var expandedMap = this.expandMap( map ),
+            copiedMap = this.copyMap( expandedMap );
+
+        // 4. Refine map
+        for ( var j = 1; j < expandedMap.length - 1; j++ ) {
+            for ( var i = 1; i < expandedMap[ 0 ].length - 1; i++ ) {
+                // Find the total amount of bordering land cells
+                var landSpaces = 0;
+                this.cellNeighbours( expandedMap, i, j, true, function( cell ) {
+                    landSpaces += cell !== gen.type[ "water" ] ? 1 : 0;
+                });
+
+                // Random based on amount of land
+                copiedMap[ j ][ i ] =
+                    9 - landSpaces > this.options.killIfWater ?
+                        this.type[ "water" ] :
+                        Math.random() < landSpaces / 9 ? gen.type[ "land" ] : gen.type[ "water" ];
+            }
+        }
+
+        // And for fun...
+        return this.colourEdges( copiedMap );
     },
 
     createSeed: function( size ) {
@@ -76,40 +128,12 @@ gen = {
         for( var i = 0; i < size; i++ ) {
             map[ i ] = [];
             for( var j = 0; j < size; j++ ) {
-                map[ i ][ j ] = Math.random() > this.options.seedLandChance ? 
-                    this.type[ "land" ] : 
+                map[ i ][ j ] = Math.random() > this.options.seedLandChance ?
+                    this.type[ "land" ] :
                     this.type[ "water" ];
             }
         }
         return map;
-    },
-
-    refineMap: function( map ) {
-        map = this.expandMap( map );
-
-        // Copy map
-        var tmpMap = [];
-        _.each( map, function( item ){
-            tmpMap[ tmpMap.length ] = _.clone( item );
-        });
-
-        for ( var j = 1; j < map.length - 1; j++ ) {
-            for ( var i = 1; i < map[ 0 ].length - 1; i++ ) {
-                // Find the total amount of bordering land cells
-                var landSpaces = 0;
-                this.cellNeighbours( map, i, j, true, function( cell ) {
-                    landSpaces += cell !== gen.type[ "water" ] ? 1 : 0;
-                })
-
-                // Random based on amount of land
-                tmpMap[ j ][ i ] = 
-                    9 - landSpaces > this.options.killIfWater ? 
-                        this.type[ "water" ] :
-                        Math.random() < landSpaces / 9 ? gen.type[ "land" ] : gen.type[ "water" ];
-            }
-        }
-        this.colourEdges( tmpMap );
-        return tmpMap;
     },
 
     colourEdges: function( map ) {
@@ -136,7 +160,7 @@ gen = {
                 var xOff = x + i,
                     yOff = y + j;
                 if( ( xOff == x && yOff == y && !blnSelf ) ||
-                    ( yOff < 0 || yOff > map.length ) || 
+                    ( yOff < 0 || yOff > map.length ) ||
                     ( xOff < 0 || xOff > map[0].length ) ) {
                     continue;
                 }
@@ -160,29 +184,36 @@ gen = {
         return newMap;
     },
 
-    drawMap: function( map, fill ) {
+    // Creates a copy of a map
+    copyMap: function( map ) {
+        var tmpMap = [];
+        _.each( map, function( item ){
+            tmpMap[ tmpMap.length ] = _.clone( item );
+        });
+        return tmpMap;
+    },
+
+    // Draws to canvas
+    drawMap: function( context, map, fill ) {
         var width = map[ 0 ].length,
             height = map.length,
-            canvasWidth = this.context.canvas.width,
-            canvasHeight = this.context.canvas.height,
+            canvasWidth = context.canvas.width,
+            canvasHeight = context.canvas.height,
             stepX = canvasWidth / map[ 0 ].length,
             stepY = canvasHeight / map.length;
-            
 
-        fill = fill || 1;
-        this.context.fillStyle = "rgba(0, 0, 200, 0.2)";
-        // this.context.fillRect( 0, 0, canvasWidth, canvasHeight );
+        fill = ! this.blur ? 1 : fill || 1;
         for( var j = 0; j < height; j++ ) {
             for( var i = 0; i < width; i++) {
                 switch( map[ j ][ i ] ) {
                     case gen.type[ "water" ]:
-                        this.context.fillStyle = "rgba(45, 179, 186," + fill + ")";
+                        context.fillStyle = "rgba(45, 179, 186," + fill + ")";
                         break;
                     case gen.type["land"]:
-                        this.context.fillStyle = "rgba(58, 138, 58," + fill + ")";
+                        context.fillStyle = "rgba(58, 138, 58," + fill + ")";
                         break;
                     case gen.type["coast"]:
-                        this.context.fillStyle = "rgba(26, 90, 58," + fill + ")";
+                        context.fillStyle = "rgba(46, 110, 78," + fill + ")";
                         break;
                 }
                 this.context.fillRect(
@@ -190,28 +221,39 @@ gen = {
                     Math.floor( j * stepY ),
                     Math.ceil( stepX ),
                     Math.ceil( stepY )
-                )
+                );
             }
         }
     },
 
     getOptions: function() {
-        this.options.iterations = parseInt( $( "opt-iterations" ).value );
-        this.options.seedSize = parseInt( $( "opt-seedSize" ).value );
-        this.options.seedLandChance = parseFloat( $( "opt-seedLandChance" ).value );
-        this.options.killIfWater = parseInt( $( "opt-killIfWater" ).value );
-        this.options.speed = parseInt( $( "opt-speed" ).value );
+        this.setOptions([
+            this.options.iterations = this.getOption( "opt-iterations", 1, 20, 5 ),
+            this.options.seedSize = this.getOption( "opt-seedSize", 1, 40, 5 ),
+            this.options.seedLandChance = this.getOption( "opt-seedLandChance", 0, 1, 0.2, true ),
+            this.options.killIfWater = this.getOption( "opt-killIfWater", 0, 9, 4 ),
+            this.options.speed = this.getOption( "opt-speed", 3, 200000, 200 )
+        ]);
     },
 
-    setOptions: function(optArray){
+    getOption: function( el, min, max, dfault, isFloat ) {
+        var meth = isFloat ? parseFloat : parseInt,
+            val = meth( $( el ).value, 10 );
+        if( val !== 0 && !val ) return dfault;
+        if( val < min ) return min;
+        if( val > max ) return max;
+        return val;
+    },
+
+    setOptions: function( optArray ) {
         $( "opt-iterations" ).value = optArray[ 0 ];
         $( "opt-seedSize" ).value = optArray[ 1 ];
         $( "opt-seedLandChance" ).value = optArray[ 2 ];
         $( "opt-killIfWater" ).value = optArray[ 3 ];
         $( "opt-speed" ).value = optArray[ 4 ];
     }
-}
+};
 
 this.gen = gen;
-    
+
 })();
