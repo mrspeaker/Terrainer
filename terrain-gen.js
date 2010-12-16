@@ -57,6 +57,24 @@ gen = {
         var self = this,
             iterations,
             map;
+            
+        /*
+        Web worker version.
+        setTimeout(function(){
+            refineMap([],function(map){
+                drawMap(function(){
+                    interate();
+                })
+            })
+        }, 1000)
+        
+        postMessage( map );
+        onMessage( e ) = funciton(){
+            drawMap( e.data, function(){
+                iterate();
+            } )
+        }
+        */
 
         this.getOptions();
 
@@ -202,28 +220,44 @@ gen = {
             stepX = canvasWidth / map[ 0 ].length,
             stepY = canvasHeight / map.length;
 
-        fill = ! this.blur ? 1 : fill || 1;
         for( var j = 0; j < height; j++ ) {
-            for( var i = 0; i < width; i++) {
-                switch( map[ j ][ i ] ) {
-                    case gen.type[ "water" ]:
-                        context.fillStyle = "rgba(45, 179, 186," + fill + ")";
-                        break;
-                    case gen.type["land"]:
-                        context.fillStyle = "rgba(58, 138, 58," + fill + ")";
-                        break;
-                    case gen.type["coast"]:
-                        context.fillStyle = "rgba(60, 107, 60," + fill + ")";
-                        break;
+            var type = map[ j ][ 0 ],
+                count = 1,
+                nextType;
+            for( var i = 1; i < width; i++) {
+                if( nextType = map[ j ][ i ] == type){
+                    count++;
+                    continue;
                 }
-                this.context.fillRect(
-                    Math.floor( i * stepX ),
-                    Math.floor( j * stepY ),
-                    Math.ceil( stepX ),
-                    Math.ceil( stepY )
-                );
+                this.drawLine( context, type, (i - count) * stepX, j * stepY, count * stepX, stepY, fill );
+                type = nextType;
+                count = 1;
+                continue;
             }
+            this.drawLine( context, type, (i - count) * stepX, j * stepY, count * stepX, stepY, fill )
         }
+    },
+    
+    drawLine: function( context, type, x, y, width, height, fill ){
+        fill = ! this.blur ? 1 : fill || 1;
+        switch( type ) {
+            case gen.type[ "water" ]:
+                context.fillStyle = "rgba(45, 179, 186," + fill + ")";
+                break;
+            case gen.type["land"]:
+                context.fillStyle = "rgba(58, 138, 58," + fill + ")";
+                break;
+            case gen.type["coast"]:
+                context.fillStyle = "rgba(60, 107, 60," + fill + ")";
+                break;
+        }
+        
+        context.fillRect(
+            Math.floor( x ),
+            Math.floor( y),
+            Math.ceil( width ),
+            Math.ceil( height )
+        );
     },
 
     getOptions: function() {
