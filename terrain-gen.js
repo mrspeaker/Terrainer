@@ -222,15 +222,14 @@ gen = {
 
         for( var j = 0; j < height; j++ ) {
             var type = map[ j ][ 0 ],
-                count = 1,
-                nextType;
+                count = 1;
             for( var i = 1; i < width; i++) {
-                if( nextType = map[ j ][ i ] == type){
+                if( map[ j ][ i ] == type){
                     count++;
                     continue;
                 }
                 this.drawLine( context, type, (i - count) * stepX, j * stepY, count * stepX, stepY, fill );
-                type = nextType;
+                type = map[ j ][ i ];
                 count = 1;
                 continue;
             }
