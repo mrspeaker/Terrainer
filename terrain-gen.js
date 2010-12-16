@@ -1,7 +1,7 @@
 ;/*
     Terrain generator thing
     www.mrspeaker.net/2010/12/12/terrainer-terrain-generator/
-    v1.0 of 1.0
+    v1.1 of 1.0
 
     var _ = "mrspeaker",
         email = _ + "@gmail.com",
@@ -60,13 +60,6 @@ gen = {
             
         /*
         Web worker version.
-        setTimeout(function(){
-            refineMap([],function(map){
-                drawMap(function(){
-                    interate();
-                })
-            })
-        }, 1000)
         
         postMessage( map );
         onMessage( e ) = funciton(){
@@ -218,12 +211,16 @@ gen = {
             canvasWidth = context.canvas.width,
             canvasHeight = context.canvas.height,
             stepX = canvasWidth / map[ 0 ].length,
-            stepY = canvasHeight / map.length;
+            stepY = canvasHeight / map.length,
+            type,
+            count,
+            i,j;
 
-        for( var j = 0; j < height; j++ ) {
-            var type = map[ j ][ 0 ],
-                count = 1;
-            for( var i = 1; i < width; i++) {
+        // "Run length encoding" on each line - pixel by pixel was very slow.
+        for( j = 0; j < height; j++ ) {
+            type = map[ j ][ 0 ];
+            count = 1;
+            for( i = 1; i < width; i++) {
                 if( map[ j ][ i ] == type){
                     count++;
                     continue;
